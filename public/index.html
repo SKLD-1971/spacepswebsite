@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Private Server</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --background-start: #1a0b2e;
+            --background-end: #000000;
+            --card-background: rgba(26, 11, 46, 0.75);
+            --blur-effect: blur(14px);
+            --text-color: #f0f0f0;
+            --text-secondary-color: #b0b0c0;
+            --button-bg: rgba(60, 30, 90, 0.7);
+            --button-hover-bg: rgba(80, 50, 110, 0.9);
+            --border-color: rgba(120, 80, 150, 0.3);
+            --owner-color: #ffffff;
+            --co-owner-color: #c0c0c0;
+            --founder-color: #e74c3c;
+            --staff-color: #3498db;
+        }
+
+        /* --- Base & Background --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: radial-gradient(circle at top, var(--background-start) 0%, var(--background-end) 80%);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        
+        /* --- Layout: Logo followed by content --- */
+        .page-container {
+            width: 100%;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* --- OFFICIAL IMAGE LOGO --- */
+        .logo-container {
+            text-align: center;
+            /* REDUCED SPACE: smaller bottom margin */
+            margin-bottom: 50px; 
+            animation: fadeIn 1s ease-out;
+        }
+        .server-logo {
+            width: 100%;
+            max-width: 550px;
+            height: auto;
+            filter: drop-shadow(0 0 10px #9d4edd) drop-shadow(0 0 25px #9d4edd);
+        }
+        
+        /* --- Glass Cards --- */
+        .card {
+            background: var(--card-background);
+            backdrop-filter: var(--blur-effect);
+            -webkit-backdrop-filter: var(--blur-effect);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* --- Roles Button --- */
+        .roles-button {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 100;
+            font-weight: 600;
+            background: var(--button-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .roles-button:hover { background: var(--button-hover-bg); transform: scale(1.05); }
+
+        /* --- Roles Modal (Profile Style) --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--card-background); backdrop-filter: var(--blur-effect); padding: 20px; border-radius: 20px; border: 1px solid var(--border-color); width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 2rem; color: var(--text-secondary-color); cursor: pointer; transition: transform 0.2s; }
+        .modal-close:hover { transform: scale(1.2); }
+        .role-category { margin-bottom: 25px; }
+        .role-category:last-child { margin-bottom: 0; }
+        .role-header { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
+        .role-title { font-weight: 700; font-size: 1.3rem; }
+        .role-icon { width: 28px; height: 28px; }
+        .role-members { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .member-card { display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
+        .member-pfp { width: 40px; height: 40px; border-radius: 6px; flex-shrink: 0; }
+        .member-name { font-weight: 600; font-size: 1.1rem; }
+        
+        /* --- Icon & Text Motion/Color Styling --- */
+        @keyframes motion-pan { to { background-position: 200% center; } }
+        .owner-icon rect { fill: url(#owner-gradient); }
+        .co-owner-icon rect { fill: url(#co-owner-gradient); }
+        .founder-icon rect { fill: url(#founder-gradient); }
+        .staff-icon rect { fill: url(#staff-gradient); }
+        .owner-text { color: var(--owner-color); font-weight: 700; }
+        .co-owner-text { color: var(--co-owner-color); }
+        .founder-text { color: var(--founder-color); }
+        .staff-text { color: var(--staff-color); }
+
+        /* --- General UI --- */
+        .card-content { padding: 30px; }
+        .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary-color); text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+        .button-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .btn { background: var(--button-bg); color: var(--text-color); text-decoration: none; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; gap: 10px; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1); text-align: center; cursor: pointer; }
+        .btn:hover { background: var(--button-hover-bg); transform: translateY(-3px); }
+        .instructions-section { margin-top: 30px; }
+        .instructions-section:first-of-type { margin-top: 0; }
+        .instructions-section h3 { font-size: 1.3rem; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .instructions-list { list-style: none; }
+        .instructions-list li { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; line-height: 1.5; border: 1px solid rgba(255,255,255,0.05); }
+        .step-number { background-color: var(--button-bg); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; }
+        .notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #8a2be2, #ff00ff); color: white; padding: 12px 25px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: bottom 0.5s ease-in-out; z-index: 1001; border: 1px solid rgba(255,255,255,0.2); }
+        .notification.show { bottom: 20px; }
+    </style>
+</head>
+<body>
+    <button class="roles-button" id="open-roles-btn">[ Roles ]</button>
+    
+    <div class="page-container">
+        <div class="logo-container">
+            <img src="https://media.discordapp.net/attachments/1210718340449042473/1421592347338080366/Spacetextlogo.png?ex=68d9988b&is=68d8470b&hm=190e48a2af8190d5922574dc0757ec6470b792a038930aea909083f88f6f41e5&=&format=webp&quality=lossless&width=684&height=456" alt="Space Server Logo" class="server-logo">
+        </div>
+
+        <main>
+            <div class="card">
+                <div class="card-content">
+                    <h2 class="card-title">Connection Methods</h2>
+                    <div class="button-grid">
+                        <button class="btn" onclick="copyToClipboard('51.83.90.223', 'IP Address')"><i class="fa-solid fa-copy"></i> Copy IP</button>
+                        <a href="data:text/plain;charset=utf-8,51.83.90.223%20growtopia1.com%0A51.83.90.223%20growtopia2.com%0A51.83.90.223%20www.growtopia1.com%0A51.83.90.223%20www.growtopia2.com" download="hosts" class="btn"><i class="fa-solid fa-desktop"></i> PC Host File</a>
+                        <button class="btn" onclick="copyToClipboard('https://spaceps-host.vercel.app/spaceps-host.txt', 'PowerTunnel URL')"><i class="fa-solid fa-link"></i> PowerTunnel URL</button>
+                        <button class="btn" onclick="copySurgeConfig()"><i class="fa-brands fa-apple"></i> iOS Surge 5 Config</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <h2 class="card-title">How To Play</h2>
+                     <div class="instructions-section">
+                        <h3><i class="fa-brands fa-windows"></i> PC / Windows Guide</h3>
+                        <ul class="instructions-list">
+                            <li><span class="step-number">1</span> Search "Notepad", right-click it, and "Run as administrator".</li>
+                            <li><span class="step-number">2</span> Go to `File > Open` and navigate to `C:\Windows\System32\drivers\etc`.</li>
+                            <li><span class="step-number">3</span> Change file type to "All Files" and open the `hosts` file.</li>
+                            <li><span class="step-number">4</span> Add the server info to the bottom and save the file.</li>
+                        </ul>
+                    </div>
+                    <div class="instructions-section">
+                        <h3><i class="fa-brands fa-android"></i> Android Guide</h3>
+                        <ul class="instructions-list">
+                            <li><span class="step-number">1</span> Download PowerTunnel from the Play Store.</li>
+                            <li><span class="step-number">2</span> Click the "PowerTunnel URL" button to copy the link.</li>
+                            <li><span class="step-number">3</span> In PowerTunnel, go to `Menu > Host Settings`.</li>
+                            <li><span class="step-number">4</span> Paste the URL and set update period to "On start".</li>
+                        </ul>
+                    </div>
+                    <div class="instructions-section">
+                        <h3><i class="fa-brands fa-apple"></i> iOS Guide (Surge 5)</h3>
+                        <ul class="instructions-list">
+                            <li><span class="step-number">1</span> Download Surge 5 from the App Store.</li>
+                            <li><span class="step-number">2</span> Click the "iOS Surge 5 Config" button to copy the text.</li>
+                            <li><span class="step-number">3</span> In Surge 5, tap "Default", and choose "Edit in Text Mode".</li>
+                            <li><span class="step-number">4</span> Delete all text, paste the config you copied, and save.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ROLES MODAL (Profile Style) -->
+    <div class="modal-overlay" id="roles-modal">
+        <div class="modal-content">
+            <span class="modal-close" id="close-roles-btn">&times;</span>
+            <h2 class="card-title">Server Roles</h2>
+            
+            <svg width="0" height="0" style="position:absolute;">
+                <defs>
+                    <mask id="role-icon-mask">
+                        <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAR2SURBVCHdZl3bi5lVFMZ/d2/dG0s2SBaSZIiQhpA8PEh46KFEiBDRQ4iQYj56KIgHxUNDHio+eCg+iB4qPgh+kBBpKTdIEMmCZN3bdW/3+sfW2TNr9nTWnLMzc5/f7MM5e6+91v9aa79n7b0VFRUVFRUVFZXfWqhR/x+E/j4K5XkQKp9+lD4hVI1aY/T/D/p/A5QdIFf7Q+hvo/T3UygdAFQe8/f0P6j3/wNlf+8oFfZH6O+jdJSA8s8o/X0kFfYH6T9U6/8ZlN8fKJWlAv8/Q/3/B8r2B6h8R2H2/w76/3eUrQ/Q3/8jVP77X2T/7yhDIdT/P0z/f4Pyw/8nVP77B5X9vaM0lEH554Hy/y/S/4Pywx+g8t1/lP19oBRkQfnnh9L/H6T/D8o3/wXl++9V9veKQlAK+ecj5f9/kP7/oHzzX0H5/jtX2d8rCkEp5J/vlP/+L9L/B+Ub/wrK9t+9yv5eUQhKIf98tPz/36T/D8o3/gbK99+1yv5eUQhKIf98uPz/D9L/B+WbfwHl+29W5f1doRQkIX9+oPz/n6T/D8o3/wfK99+oyvt7RSkoQv78TPn/P0j/H5Rv/gWU779VlfdfhVIQhvz5nfL//yL9f1C++Tco33+7Ku+/ComQF/nzE+X/f5D+/6B88z+gff91qrz/KhKTv/Lnp8r//5P0/0H55pegbX+EKu+/ColJUP78fPn/f5L+PyhffAba9t+pyvuuQjIJyp+fL//9f5T+PyhffAXa9l+rynurQiIJyp+fL//9f5T+PyhffAXa9t+pyvt7RSkky583lP/+L1L//6B88fOgbX+EKn/aKjKJRn7+tPz3f5X+/wflY6DtfkKVH2+RzXSi58/L//5+6f8flA+BtscvUeUnW2QzQf78rPz3d0r//6B88GvQ9l+hyk+2yGaC/Pmp8t/fKf3/g/LBj0Db/wYqP9kiswnyk58r//1d0v8/KB/8C7T9N6jysy2ymSD/Kj/L//x3Tf//oHzwM6Dtv/8qP9kgswnyk18n//ffLf3/Q33wNND2f6DKz6o2Uwnyk29V/uu/b/r/R33gS6Dt/wyVn1VtphLkJ98r//XfOP3/o/Lg90Hbfw6Vn1VtphLkJ/8N//XfP/3/o/Lgt0Hbfw6Vn1XtQon0/D/o/6f0/w/KB/8Lbf85VP6/2qVEev6/0P9/lf7/QfngX0Hb/wYq/988SiH1/3Dof79f+v8H5YPfhm3/GSj/31yUQlL/f6D0v/8m/X9QPrgHbPuPUvnr5mQSm/z8/0j/++uk/w/KB/8Ibf8xqfxt8+QiHf+P0f9+n/T/QfngX0Db/xkqf9u8+Shn/38c+t+fkf4/KB98B7T9x6fyty0vUcj+31b63/9I/x+UD2Y30PYfpcpftyYSUvb3DqX/f0z/H5QPZjvQ9h+nyte3JBIpY3+/kP7/Y/r/oHyQ7UDbf4Aqf988SiH/74PS/37j9P8PykfzM2j7j0/l75tHKeT/f5j63z9K//8gfZztQNs/gUpfV6NEeM4Z5Wd5RUVFRUVFRUVFRUWlcP8Di/5862sI8H0AAAAASUVORK5CYII=" x="0" y="0"/>
+                    </mask>
+                    <!-- Motion Gradients -->
+                    <linearGradient id="owner-gradient" x1="0%" y1="0%" x2="200%" y2="0%">
+                        <stop offset="0%" stop-color="#00ffff" /><stop offset="25%" stop-color="#3b48ff" /><stop offset="50%" stop-color="#8a2be2" /><stop offset="75%" stop-color="#330066" /><stop offset="100%" stop-color="#00ffff" /><animate attributeName="x1" from="0%" to="-200%" dur="5s" repeatCount="indefinite" />
+                    </linearGradient>
+                    <linearGradient id="co-owner-gradient" x1="0%" y1="0%" x2="200%" y2="0%">
+                        <stop offset="0%" stop-color="#FFD700" /><stop offset="25%" stop-color="#FFFFFF" /><stop offset="50%" stop-color="#C0C0C0" /><stop offset="75%" stop-color="#000000" /><stop offset="100%" stop-color="#FFD700" /><animate attributeName="x1" from="0%" to="-200%" dur="5s" repeatCount="indefinite" />
+                    </linearGradient>
+                    <linearGradient id="founder-gradient" x1="0%" y1="0%" x2="200%" y2="0%">
+                        <stop offset="0%" stop-color="#e74c3c" /><stop offset="25%" stop-color="#000000" /><stop offset="50%" stop-color="#8a2be2" /><stop offset="75%" stop-color="#4c0000" /><stop offset="100%" stop-color="#e74c3c" /><animate attributeName="x1" from="0%" to="-200%" dur="5s" repeatCount="indefinite" />
+                    </linearGradient>
+                    <linearGradient id="staff-gradient" x1="0%" y1="0%" x2="200%" y2="0%">
+                        <stop offset="0%" stop-color="#3498db" /><stop offset="50%" stop-color="#00ffff" /><stop offset="100%" stop-color="#3498db" /><animate attributeName="x1" from="0%" to="-200%" dur="5s" repeatCount="indefinite" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            
+            <div class="role-category">
+                <div class="role-header">
+                    <svg class="role-icon owner-icon" viewBox="0 0 100 100"><rect mask="url(#role-icon-mask)" width="100" height="100"/></svg>
+                    <h3 class="role-title owner-text">Owner</h3>
+                </div>
+                <div class="role-members">
+                    <div class="member-card">
+                        <img src="https://cdn.discordapp.com/avatars/809147339679072307/c1b8d08bf5ff89922d25d80aece3ec80.webp?size=128" alt="@cmd" class="member-pfp">
+                        <span class="member-name owner-text">@cmd</span>
+                    </div>
+                </div>
+            </div>
+            <div class="role-category">
+                <div class="role-header">
+                     <svg class="role-icon co-owner-icon" viewBox="0 0 100 100"><rect mask="url(#role-icon-mask)" width="100" height="100"/></svg>
+                    <h3 class="role-title co-owner-text">Co-Owner</h3>
+                </div>
+                <div class="role-members">
+                    <div class="member-card">
+                        <img src="https://cdn.discordapp.com/avatars/1113487137095028756/9ee53109b12e9b45bf8349d4b22bf0a4.webp?size=128" alt="tester" class="member-pfp">
+                        <span class="member-name co-owner-text">tester</span>
+                    </div>
+                    <div class="member-card">
+                        <img src="https://cdn.discordapp.com/avatars/802103272344780820/bd53fe3eac47238c4521783129d113cd.webp?size=128" alt="noobie" class="member-pfp">
+                        <span class="member-name co-owner-text">noobie</span>
+                    </div>
+                     <div class="member-card">
+                        <img src="https://i.imgur.com/8cZQY0q.png" alt="zuko" class="member-pfp">
+                        <span class="member-name co-owner-text">zuko</span>
+                    </div>
+                </div>
+            </div>
+            <div class="role-category">
+                <div class="role-header">
+                    <svg class="role-icon founder-icon" viewBox="0 0 100 100"><rect mask="url(#role-icon-mask)" width="100" height="100"/></svg>
+                    <h3 class="role-title founder-text">Founder</h3>
+                </div>
+                <div class="role-members">
+                    <div class="member-card">
+                        <img src="https://cdn.discordapp.com/avatars/1238521953464221797/adc0c9474b2f32e84198578419a13843.webp?size=128" alt="966" class="member-pfp">
+                        <span class="member-name founder-text">966</span>
+                    </div>
+                </div>
+            </div>
+             <div class="role-category">
+                <div class="role-header">
+                    <svg class="role-icon staff-icon" viewBox="0 0 100 100"><rect mask="url(#role-icon-mask)" width="100" height="100"/></svg>
+                    <h3 class="role-title staff-text">Staff</h3>
+                </div>
+                <div class="role-members">
+                    <div class="member-card">
+                        <img src="https://cdn.discordapp.com/avatars/1188646569701015552/6b5b6cc97d039c3c514381a46fbc5272.webp?size=128" alt="jeff" class="member-pfp">
+                        <span class="member-name staff-text">jeff</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // --- MODAL SCRIPT ---
+        const openBtn = document.getElementById('open-roles-btn');
+        const closeBtn = document.getElementById('close-roles-btn');
+        const modal = document.getElementById('roles-modal');
+        openBtn.addEventListener('click', () => { modal.classList.add('active'); });
+        closeBtn.addEventListener('click', () => { modal.classList.remove('active'); });
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) { modal.classList.remove('active'); }
+        });
+
+        // --- NOTIFICATION & COPY SCRIPT ---
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => { notification.classList.remove('show'); }, 3000);
+        }
+        function copyToClipboard(text, type) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(`${type} copied to clipboard!`);
+            }).catch(err => { console.error('Failed to copy: ', err); showNotification(`Failed to copy ${type}.`); });
+        }
+        function copySurgeConfig() {
+            const surgeConfigText = `[General]\n\n[Rule]\nFINAL,DIRECT\n\n[Host]\nwww.growtopia1.com = 51.83.90.223\nwww.growtopia2.com = 51.83.90.223`;
+            copyToClipboard(surgeConfigText, 'iOS Config');
+        }
+    </script>
+</body>
+</html>
