@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Private Server</title>
+    <title>EXP Private Server</title>
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -147,16 +147,16 @@
                 <div class="card-content">
                     <h2 class="card-title">Connection Methods</h2>
                     <div class="button-grid">
-                        <button class="btn" onclick="copyToClipboard('51.83.90.223', 'IP Address')"><i class="fa-solid fa-copy"></i> Copy IP</button>
-                        <a href="data:text/plain;charset=utf-8,51.83.90.223%20growtopia1.com%0A51.83.90.223%20growtopia2.com%0A51.83.90.223%20www.growtopia1.com%0A51.83.90.223%20www.growtopia2.com" download="hosts" class="btn"><i class="fa-solid fa-desktop"></i> PC Host File</a>
-                        <button class="btn" onclick="copyToClipboard('https://spaceps-host.vercel.app/spaceps-host.txt', 'PowerTunnel URL')"><i class="fa-solid fa-link"></i> PowerTunnel URL</button>
+                        <button class="btn" onclick="copyToClipboard('143.198.86.137', 'IP Address')"><i class="fa-solid fa-copy"></i> Copy IP</button>
+                        <a href="data:text/plain;charset=utf-8,143.198.86.137%20growtopia1.com%0A143.198.86.137%20growtopia2.com%0A143.198.86.137%20www.growtopia1.com%0A143.198.86.137%20www.growtopia2.com" download="hosts" class="btn"><i class="fa-solid fa-desktop"></i> PC Host File</a>
+                        <button class="btn" onclick="copyToClipboard('https://hostwebsite-glsi.vercel.app/', 'PowerTunnel URL')"><i class="fa-solid fa-link"></i> PowerTunnel URL</button>
                         <button class="btn" onclick="copySurgeConfig()"><i class="fa-brands fa-apple"></i> iOS Surge 5 Config</button>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-content">
+                <div class="card-content">143.198.86.137
                     <h2 class="card-title">How To Play</h2>
                      <div class="instructions-section">
                         <h3><i class="fa-brands fa-windows"></i> PC / Windows Guide</h3>
@@ -302,7 +302,7 @@
             }).catch(err => { console.error('Failed to copy: ', err); showNotification(`Failed to copy ${type}.`); });
         }
         function copySurgeConfig() {
-            const surgeConfigText = `[General]\n\n[Rule]\nFINAL,DIRECT\n\n[Host]\nwww.growtopia1.com = 51.83.90.223\nwww.growtopia2.com = 51.83.90.223`;
+            const surgeConfigText = `[General]\n\n[Rule]\nFINAL,DIRECT\n\n[Host]\nwww.growtopia1.com = 143.198.86.137\nwww.growtopia2.com = 143.198.86.137`;
             copyToClipboard(surgeConfigText, 'iOS Config');
         }
     </script>
